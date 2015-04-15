@@ -131,10 +131,10 @@ class ShellEnv(object):
         return k in self._env or k in self._osenv
 
     def path_s(self, *v):
-        print(self._shell.env_path('$PATH', *v))
+        print(self._shell.env_path(self._shell.var('PATH'), *v))
 
     def path_p(self, *v):
-        print(self._shell.env_path(*(v + ('$PATH',))))
+        print(self._shell.env_path(*(v + (self._shell.var('PATH'),))))
 
 
 def run_command(*cmd):
