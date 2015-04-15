@@ -35,6 +35,10 @@ class ShellType(object):
     def env_path(cls, *path_seg):
         return cls.env_var('PATH', cls.path_sep.join(path_seg))
 
+    @classmethod
+    def var(cls, key):
+        return cls.var_armour.format(key=key)
+
 
 class Posix(ShellType):
     shells = ['posix', 'sh', 'bash', 'ash', 'dash', 'ksh', 'zsh']
@@ -42,6 +46,7 @@ class Posix(ShellType):
     var_export = 'export {key}={val}'
     alias_format = 'alias {key}={val}'
     path_sep = ':'
+    var_armour = '${{{key}}}'
 
 
 class Csh(ShellType):
@@ -50,6 +55,7 @@ class Csh(ShellType):
     var_export = 'setenv {key} {val};'
     alias_format = 'alias {key} {val};'
     path_sep = ':'
+    var_armour = '${{{key}}}'
 
 
 class Fish(ShellType):
@@ -58,6 +64,7 @@ class Fish(ShellType):
     var_export = 'set -x {key} {val}'
     alias_format = 'alias {key}={val}'
     path_sep = ' '
+    var_armour = '${key}'
 
 
 ShellType.register_all()
@@ -197,6 +204,7 @@ if __name__ == '__main__':
         'shell': shell,
         'shell_name': shell_name,
         'verbatim': verbatim,
+        'var': shell.var,
         'dq': double_quote,
         'sq': single_quote,
     }

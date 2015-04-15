@@ -10,10 +10,10 @@ env.TESTLOCAL = LVar('bar')
 env.testalias = Alias('echo yay')
 
 # single quotes are the default, but we can force them anyway
-env.TESTSINGLEQUOTES = sq('foo $TESTLOCAL')
+env.TESTSINGLEQUOTES = sq('foo $NOTAVAR')
 
-# use dq if you need "", set something that uses a variable in it
-env.TESTDOUBLEQUOTES = dq('foo $TESTLOCAL')
+# use dq if you need "", and var to pick the best variable syntax
+env.TESTDOUBLEQUOTES = dq('foo ' + var('TESTLOCAL'))
 
 # local var with double quotes
 env.TESTQUOTEDLOCAL = LVar(dq('oh no $PATH'))
