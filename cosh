@@ -47,7 +47,7 @@ class Posix(ShellType):
 class Csh(ShellType):
     shells = ['csh', 'tcsh']
     var_local = 'set {key} {val};'
-    var_export = 'setenv {key}={val};'
+    var_export = 'setenv {key} {val};'
     alias_format = 'alias {key} {val};'
     path_sep = ':'
 
