@@ -21,18 +21,20 @@ Add something like the following to your shell's startup script (`bashrc`, `cshr
 
 ```sh
 # sh-like
-# NOTE: sourcing a process-substitution may not work on other sh-like shells, and will not work on old versions of bash
+# NOTE: sourcing a process-substitution may not work on other sh-like shells
+# and will not work on old versions of bash
 source <( cosh --shell bash ~/.config/cosh/config.py )
 ```
 
 ```csh
 # csh-like
-eval `cosh --shell csh ~/.config/cosh/config.py`
+set rc=/tmp/cshrc-`date +s`
+cosh --shell csh ~/.config/cosh/config.py >${rc} && source ${rc} && rm ${rc}
 ```
 
 ```fish
 # fish
-source (cosh --shell fish ~/.config/cosh/config.py | psub)
+source ( cosh --shell fish ~/.config/cosh/config.py | psub )
 ```
 
 It's recommended that you use the actual shell name, since that lets you do some fancy stuff in the config.
