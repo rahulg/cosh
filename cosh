@@ -21,19 +21,31 @@ class ShellType(object):
             ShellType.types.update((sh, subcls) for sh in subcls.shells)
 
     @classmethod
+    def quote_if_needed(cls, v):
+        if len(v) == 0 or v[0] not in ('\'', '"'):
+            v = cls.single_quote(v)
+        return v
+
+    @classmethod
     def env_var(cls, key, val, export=True):
         return (cls.var_export if export else cls.var_local).format(
             key=key,
-            val=val,
+            val=cls.quote_if_needed(val),
         )
 
     @classmethod
     def env_alias(cls, key, val):
-        return cls.alias_format.format(key=key, val=val)
+        return cls.alias_format.format(
+            key=key,
+            val=cls.quote_if_needed(val),
+        )
 
     @classmethod
-    def env_path(cls, *path_seg):
-        return cls.env_var('PATH', cls.path_sep.join(path_seg))
+    def env_path(cls, *paths):
+        return cls.var_export.format(
+            key='PATH',
+            val=cls.double_quote(cls.path_sep.join(paths)),
+        )
 
     @classmethod
     def var(cls, key):
@@ -66,6 +78,17 @@ class Fish(ShellType):
     path_sep = ' '
     var_armour = '${key}'
 
+    @classmethod
+    def quote_path_elements(cls, elem):
+        return elem if elem == cls.var('PATH') else cls.double_quote(elem)
+
+    @classmethod
+    def env_path(cls, *paths):
+        return cls.var_export.format(
+            key='PATH',
+            val=cls.path_sep.join(cls.quote_path_elements(elem) for elem in paths),
+        )
+
 
 class Csh(ShellType):
     shells = ['csh', 'tcsh']
@@ -85,35 +108,25 @@ ShellType.register_all()
 
 class EnvItem(object):
     def __init__(self, v):
-        v = str(v)
-        self.v = v
+        self.v = str(v)
 
     def render(self, k, shell):
         raise NotImplementedError
 
-    @staticmethod
-    def quote_if_needed(v, shell):
-        if len(v) == 0 or v[0] not in ('\'', '"'):
-            v = shell.single_quote(v)
-        return v
-
 
 class Var(EnvItem):
     def render(self, k, shell):
-        v = EnvItem.quote_if_needed(self.v, shell)
-        return shell.env_var(k, v)
+        return shell.env_var(k, self.v)
 
 
 class LVar(EnvItem):
     def render(self, k, shell):
-        v = EnvItem.quote_if_needed(self.v, shell)
-        return shell.env_var(k, v, export=False)
+        return shell.env_var(k, self.v, export=False)
 
 
 class Alias(EnvItem):
     def render(self, k, shell):
-        v = EnvItem.quote_if_needed(self.v, shell)
-        return shell.env_alias(k, v)
+        return shell.env_alias(k, self.v)
 
 
 class ShellEnv(object):
