@@ -39,21 +39,21 @@ class ShellType(object):
     def var(cls, key):
         return cls.var_armour.format(key=key)
 
+    @classmethod
+    def double_quote(cls, s):
+        return '"' + str(s).replace('"', '\\\"') + '"'
+
+    @classmethod
+    def single_quote(cls, s):
+        return '\'' + str(s).replace('\'', '\\\'') + '\''
+
+
 
 class Posix(ShellType):
     shells = ['posix', 'sh', 'bash', 'ash', 'dash', 'ksh', 'zsh']
     var_local = '{key}={val}'
     var_export = 'export {key}={val}'
     alias_format = 'alias {key}={val}'
-    path_sep = ':'
-    var_armour = '${{{key}}}'
-
-
-class Csh(ShellType):
-    shells = ['csh', 'tcsh']
-    var_local = 'set {key} {val};'
-    var_export = 'setenv {key} {val};'
-    alias_format = 'alias {key} {val};'
     path_sep = ':'
     var_armour = '${{{key}}}'
 
@@ -67,33 +67,53 @@ class Fish(ShellType):
     var_armour = '${key}'
 
 
+class Csh(ShellType):
+    shells = ['csh', 'tcsh']
+    var_local = 'set {key} {val};'
+    var_export = 'setenv {key} {val};'
+    alias_format = 'alias {key} {val};'
+    path_sep = ':'
+    var_armour = '${{{key}}}'
+
+    @classmethod
+    def double_quote(cls, s):
+        return '"' + str(s).replace('"', '"\\""') + '"'
+
+
 ShellType.register_all()
 
 
 class EnvItem(object):
     def __init__(self, v):
         v = str(v)
-        if len(v) == 0 or v[0] not in ('\'', '"'):
-            v = single_quote(v)
         self.v = v
 
     def render(self, k, shell):
         raise NotImplementedError
 
+    @staticmethod
+    def quote_if_needed(v, shell):
+        if len(v) == 0 or v[0] not in ('\'', '"'):
+            v = shell.single_quote(v)
+        return v
+
 
 class Var(EnvItem):
     def render(self, k, shell):
-        return shell.env_var(k, self.v)
+        v = EnvItem.quote_if_needed(self.v, shell)
+        return shell.env_var(k, v)
 
 
 class LVar(EnvItem):
     def render(self, k, shell):
-        return shell.env_var(k, self.v, export=False)
+        v = EnvItem.quote_if_needed(self.v, shell)
+        return shell.env_var(k, v, export=False)
 
 
 class Alias(EnvItem):
     def render(self, k, shell):
-        return shell.env_alias(k, self.v)
+        v = EnvItem.quote_if_needed(self.v, shell)
+        return shell.env_alias(k, v)
 
 
 class ShellEnv(object):
@@ -139,14 +159,6 @@ class ShellEnv(object):
 
 def run_command(*cmd):
     return subprocess.check_output(cmd).decode('utf-8').rstrip('\n')
-
-
-def double_quote(s):
-    return '"' + str(s).replace('"', '\\\"') + '"'
-
-
-def single_quote(s):
-    return '\'' + str(s).replace('\'', '\\\'') + '\''
 
 
 def verbatim(s):
@@ -205,8 +217,8 @@ if __name__ == '__main__':
         'shell_name': shell_name,
         'verbatim': verbatim,
         'var': shell.var,
-        'dq': double_quote,
-        'sq': single_quote,
+        'dq': shell.double_quote,
+        'sq': shell.single_quote,
     }
 
     code = compile(istream.read(), conf, 'exec')
