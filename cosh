@@ -60,7 +60,6 @@ class ShellType(object):
         return '\'' + str(s).replace('\'', '\\\'') + '\''
 
 
-
 class Posix(ShellType):
     shells = ['posix', 'sh', 'bash', 'ash', 'dash', 'ksh', 'zsh']
     var_local = '{key}={val}'
@@ -86,7 +85,9 @@ class Fish(ShellType):
     def env_path(cls, *paths):
         return cls.var_export.format(
             key='PATH',
-            val=cls.path_sep.join(cls.quote_path_elements(elem) for elem in paths),
+            val=cls.path_sep.join(
+                cls.quote_path_elements(elem) for elem in paths
+            ),
         )
 
 
