@@ -34,6 +34,13 @@ class ShellType(object):
         )
 
     @classmethod
+    def env_abbr(cls, key, val):
+        return cls.abbr_format.format(
+            key=key,
+            val=cls.quote_if_needed(val),
+        )
+
+    @classmethod
     def env_alias(cls, key, val):
         return cls.alias_format.format(
             key=key,
@@ -64,7 +71,8 @@ class Posix(ShellType):
     shells = ['posix', 'sh', 'bash', 'ash', 'dash', 'ksh', 'zsh']
     var_local = '{key}={val}'
     var_export = 'export {key}={val}'
-    alias_format = 'alias {key}={val}'
+    abbr_format = 'alias {key}={val}'
+    alias_format = abbr_format
     path_sep = ':'
     var_armour = '${{{key}}}'
 
@@ -73,7 +81,8 @@ class Fish(ShellType):
     shells = ['fish']
     var_local = 'set {key} {val}'
     var_export = 'set -x {key} {val}'
-    alias_format = 'alias {key}={val}'
+    abbr_format = 'abbr {key} {val}'
+    alias_format = 'alias {key} {val}'
     path_sep = ' '
     var_armour = '${key}'
 
@@ -95,7 +104,8 @@ class Csh(ShellType):
     shells = ['csh', 'tcsh']
     var_local = 'set {key} {val};'
     var_export = 'setenv {key} {val};'
-    alias_format = 'alias {key} {val};'
+    abbr_format = 'alias {key} {val};'
+    alias_format = abbr_format
     path_sep = ':'
     var_armour = '${{{key}}}'
 
@@ -123,6 +133,11 @@ class Var(EnvItem):
 class LVar(EnvItem):
     def render(self, k, shell):
         return shell.env_var(k, self.v, export=False)
+
+
+class Abbr(EnvItem):
+    def render(self, k, shell):
+        return shell.env_abbr(k, self.v)
 
 
 class Alias(EnvItem):
@@ -218,6 +233,7 @@ if __name__ == '__main__':
 
     shell_env = ShellEnv(shell)
     config_env = {
+        'Abbr': Abbr,
         'Alias': Alias,
         'LVar': LVar,
         'Var': Var,
