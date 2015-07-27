@@ -11,7 +11,7 @@ class Parser
     args = Options.new :sh
 
     opt_parser = OptionParser.new do |opts|
-      opts.banner = 'Usage cosh.rb [options] <config.rb>'
+      opts.banner = 'Usage cosh.rb [options] [config.rb]'
       opts.on('-sSHELL', '--shell=SHELL', 'target shell syntax') do |shell|
         args.shell = shell.to_sym
       end
@@ -186,11 +186,6 @@ handlers.each do |hnd|
 end
 
 options = Parser.parse ARGV
-if ARGV.empty?
-  config = File.expand_path '~/.config/cosh/config.rb'
-else
-  config = ARGV.pop
-end
 
 unless handler_map.key? options.shell
   puts "Unknown shell #{options.shell}"
@@ -199,4 +194,4 @@ end
 
 handler = handler_map[options.shell].new
 
-eval File.read(config), handler.bind
+eval ARGF.read, handler.bind
