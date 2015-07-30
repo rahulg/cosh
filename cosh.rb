@@ -100,12 +100,12 @@ class Posix < Shell
   end
 
   def lvar(key, val)
-    env['key'] = val
+    env[key] = val
     puts "#{key}=#{quote val}"
   end
 
   def var(key, val)
-    env['key'] = val
+    env[key] = val
     puts "export #{key}=#{quote val}"
   end
 
@@ -142,7 +142,7 @@ class Fish < Shell
   end
 
   def lvar(key, val)
-    env['key'] = val
+    env[key] = val
     puts "set #{key} #{quote val}"
   end
 
@@ -151,7 +151,7 @@ class Fish < Shell
   end
 
   def var(key, val)
-    env['key'] = val
+    env[key] = val
     puts "set -x #{key} #{quote val}"
   end
 
