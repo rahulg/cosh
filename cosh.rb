@@ -37,11 +37,12 @@ module Platform
 end
 
 class Shell
-  def initialize
+  def initialize(shell_name)
     @env = OpenStruct.new ENV
+    @shell_name = shell_name.to_sym
   end
 
-  attr_accessor :env
+  attr_accessor :env, :shell_name
 
   def run(*cmd)
     IO.popen(cmd.join ' ').gets.strip
@@ -192,6 +193,6 @@ unless handler_map.key? options.shell
   exit 1
 end
 
-handler = handler_map[options.shell].new
+handler = handler_map[options.shell].new options.shell
 
 eval ARGF.read, handler.bind
