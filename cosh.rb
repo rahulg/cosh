@@ -121,11 +121,11 @@ class Posix < Shell
     dqvar key, array((variable key), *vals)
   end
 
-  def alias(key, val)
+  def shalias(key, val)
     puts "alias #{key}=#{quote val}"
   end
 
-  alias_method :abbr, :alias
+  alias_method :abbr, :shalias
 end
 
 class Fish < Shell
@@ -168,7 +168,7 @@ class Fish < Shell
     unquoted_var key, array((variable key), *vals)
   end
 
-  def alias(key, val)
+  def shalias(key, val)
     puts "alias #{key} #{quote val}"
   end
 
