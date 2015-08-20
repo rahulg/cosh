@@ -136,6 +136,32 @@ class Posix < Shell
   alias_method :abbr, :shalias
 end
 
+class Csh < Posix
+  def shell
+    :csh
+  end
+
+  def self.shells
+    [:csh, :tcsh]
+  end
+
+  def lvar(key, val)
+    env[key] = val
+    puts "set #{key} #{quote val}"
+  end
+
+  def var(key, val)
+    env[key] = val
+    puts "setenv #{key} #{quote val}"
+  end
+
+  def shalias(key, val)
+    puts "alias #{key} #{quote val}"
+  end
+
+  alias_method :abbr, :shalias
+end
+
 # fish-shell support
 class Fish < Shell
   def shell
@@ -191,7 +217,7 @@ class Fish < Shell
   end
 end
 
-handlers = [Fish, Posix]
+handlers = [Csh, Fish, Posix]
 handler_map = {}
 
 handlers.each do |hnd|
