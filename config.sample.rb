@@ -28,7 +28,7 @@ var TESTUNAME, "my uname is #{run('uname', '-a')}"
 suffix PATH, 'appends', 'these', 'to', 'path'
 prefix PATH, 'prepends'
 
-# conditionals can work on shell families…
+# conditionals can work on shell families
 if shell == :fish
   var MYSHELL, 'fish'
 elsif shell == :csh
@@ -37,10 +37,8 @@ elsif shell == :posix
   var MYSHELL, 'yaysh'
 end
 
-# or platforms… (as defined by python's sys.platform)
-if Platform.darwin?
-  var MACUSERS, 'rawr'
-end
+# or platforms (as defined by python's sys.platform)
+var MACUSERS, 'rawr' if Platform.darwin?
 
 # or shell names
 # this will run only when --shell zsh or -s zsh is passed in
@@ -51,9 +49,7 @@ if shell_name == :zsh
 end
 
 # or whatever you like
-if 3 % 2 == 1
-  puts '# whee'
-end
+puts '# whee' if 3.odd?
 
 # sometimes you just want to embed some shell commands to be printed verbatim
 if shell == :posix

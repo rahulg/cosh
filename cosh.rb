@@ -6,6 +6,7 @@ require 'ostruct'
 
 Options = Struct.new(:shell)
 
+# Argument parser
 class Parser
   def self.parse(options)
     args = Options.new :sh
@@ -26,6 +27,7 @@ class Parser
   end
 end
 
+# Helper class to determine platform in DSL
 module Platform
   def self.darwin?
     (/darwin/ =~ RbConfig::CONFIG['host_os']) != nil
@@ -36,6 +38,7 @@ module Platform
   end
 end
 
+# Base class for shells
 class Shell
   def initialize(shell_name)
     @env = OpenStruct.new ENV
@@ -73,6 +76,10 @@ class Shell
     end
   end
 
+  def source(path)
+    puts "source #{path}" if File.file? path
+  end
+
   def self.const_missing(name)
     name
   end
@@ -86,6 +93,7 @@ class Shell
   end
 end
 
+# POSIX shell support
 class Posix < Shell
   def shell
     :posix
@@ -128,6 +136,7 @@ class Posix < Shell
   alias_method :abbr, :shalias
 end
 
+# fish-shell support
 class Fish < Shell
   def shell
     :fish
