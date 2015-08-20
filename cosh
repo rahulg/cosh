@@ -122,11 +122,11 @@ class Posix < Shell
   end
 
   def prefix(key, *vals)
-    dqvar key, array(*vals, (variable key))
+    dqvar key, array(*vals, variable(key))
   end
 
   def suffix(key, *vals)
-    dqvar key, array((variable key), *vals)
+    dqvar key, array(variable(key), *vals)
   end
 
   def shalias(key, val)
@@ -156,6 +156,7 @@ class Fish < Shell
   end
 
   def unquoted_var(key, val)
+    env[key] = val
     puts "set -x #{key} #{val}"
   end
 
@@ -170,11 +171,15 @@ class Fish < Shell
   end
 
   def prefix(key, *vals)
-    unquoted_var key, array(*vals, (variable key))
+    quoted_vals = array(*vals)
+    quoted_vals.concat  ' ' + variable(key)
+    unquoted_var key, quoted_vals
   end
 
   def suffix(key, *vals)
-    unquoted_var key, array((variable key), *vals)
+    quoted_vals = variable key
+    quoted_vals.concat ' ' + array(*vals)
+    unquoted_var key, quoted_vals
   end
 
   def shalias(key, val)
