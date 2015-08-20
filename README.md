@@ -1,8 +1,6 @@
 # cosh
 
-`cosh` is a small python utility that allows you to generate a common environment configuration (variables and aliases) for multiple shells that may not share a common syntax.
-
-It's not likely to be useful to you unless you use `fish` / `csh` along with the `sh` family of shells.
+`cosh` is a small ruby utility that generates a shell environment & alias configuration for multiple shells that don't share a common syntax.
 
 It currently supports the following families:
 
@@ -12,7 +10,7 @@ It currently supports the following families:
 
 ## Requirements
 
-* python 2.7 or 3.\*
+* ruby 2.2 (probably works with 2.0+)
 * any of the supported shells
 
 ## Usage
@@ -23,26 +21,30 @@ Add something like the following to your shell's startup script (`bashrc`, `cshr
 # sh-like
 # NOTE: sourcing a process-substitution may not work on other sh-like shells
 # and will not work on old versions of bash
-source <( cosh --shell bash ~/.config/cosh/config.py )
+source <( cosh --shell bash ~/.config/cosh/config.rb )
 ```
 
 ```csh
 # csh-like
 set rc=/tmp/cshrc-`date +s`
-cosh --shell csh ~/.config/cosh/config.py >${rc} && source ${rc} && rm ${rc}
+cosh --shell csh ~/.config/cosh/config.rb >${rc} && source ${rc} && rm ${rc}
 ```
 
 ```fish
 # fish
-source ( cosh --shell fish ~/.config/cosh/config.py | psub )
+source ( cosh --shell fish ~/.config/cosh/config.rb | psub )
 ```
 
-It's recommended that you use the actual shell name, since that lets you do some fancy stuff in the config.
+It's recommended that you use the actual shell name, since that lets you do some fancy conditionals in the config.
 
-## config.py syntax
+## config.rb syntax
 
-`config.py` is a standard python file that gets	`exec`ed by `cosh`. Any python statement should work in it. Refer to the enclosed `config.sample.py` for more details.
+`config.rb` is a standard ruby file that gets `eval`ed by `cosh`. Any standard ruby should work in it, and there's a basic DSL for common operations.
 
-## The Name
+Example:
 
-`cosh` is short for common shell.
+* `var foo, 'bar'` sets an exported variable `foo` to `bar`
+* `lvar bar, 'baz'` sets a local variable `bar` to `baz`
+* `alias foo, 'bar'` creates an alias named `foo`, which will run `bar` when run
+
+Refer to `config.sample.rb` for more details.
