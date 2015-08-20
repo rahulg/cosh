@@ -145,6 +145,10 @@ class Csh < Posix
     [:csh, :tcsh]
   end
 
+  def dq(val)
+    %("#{val.gsub %("), %q("\"")}")
+  end
+
   def lvar(key, val)
     env[key] = val
     puts "set #{key} #{quote val}"
